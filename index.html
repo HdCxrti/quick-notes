@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Notes</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1><i class="fas fa-sticky-note"></i> Quick Notes</h1>
+      <p class="date" id="currentDate"></p>
+    </header>
+    
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="search-box">
+          <input type="text" id="searchInput" placeholder="Search notes..." />
+          <i class="fas fa-search search-icon"></i>
+        </div>
+        
+        <div class="categories">
+          <h3>Categories</h3>
+          <ul id="categoryList">
+            <li class="active" data-category="all">All Notes</li>
+            <li data-category="personal">Personal</li>
+            <li data-category="work">Work</li>
+            <li data-category="ideas">Ideas</li>
+          </ul>
+          <button id="addCategoryBtn"><i class="fas fa-plus"></i> New Category</button>
+        </div>
+      </div>
+      
+      <div class="notes-container">
+        <div class="note-input">
+          <input type="text" id="noteTitle" placeholder="Title..." />
+          <textarea id="noteText" placeholder="Write your note..."></textarea>
+          <div class="note-options">
+            <select id="noteCategory">
+              <option value="personal">Personal</option>
+              <option value="work">Work</option>
+              <option value="ideas">Ideas</option>
+            </select>
+            <button id="addNote"><i class="fas fa-plus"></i> Add Note</button>
+          </div>
+        </div>
+        
+        <div class="notes-wrapper">
+          <h2 id="currentCategory">All Notes</h2>
+          <div id="noteList" class="notes-grid"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Template for note cards -->
+  <template id="noteTemplate">
+    <div class="note-card">
+      <div class="note-header">
+        <h3 class="note-title"></h3>
+        <span class="note-category"></span>
+      </div>
+      <p class="note-content"></p>
+      <div class="note-footer">
+        <span class="note-date"></span>
+        <div class="note-actions">
+          <button class="edit-btn"><i class="fas fa-edit"></i></button>
+          <button class="delete-btn"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <script src="script.js"></script>
+</body>
+</html>
