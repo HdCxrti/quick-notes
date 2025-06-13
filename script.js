@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const addCategoryBtn = document.getElementById('addCategoryBtn');
   const currentDateEl = document.getElementById('currentDate');
   const noteTemplate = document.getElementById('noteTemplate');
+  const themeToggle = document.getElementById('themeToggle');
 
   // State
   let notes = [];
@@ -27,6 +28,7 @@ document.addEventListener('DOMContentLoaded', function() {
   categoryList.addEventListener('click', handleCategoryClick);
   addCategoryBtn.addEventListener('click', handleAddCategory);
   noteList.addEventListener('click', handleNoteActions);
+  themeToggle.addEventListener('click', toggleTheme);
 
   // Functions
   function init() {
@@ -34,6 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
     loadFromLocalStorage();
     renderNotes();
     renderCategories();
+    initTheme();
   }
 
   function displayCurrentDate() {
@@ -276,5 +279,39 @@ document.addEventListener('DOMContentLoaded', function() {
 
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+  
+  function initTheme() {
+    // Check if user has a saved theme preference
+    const savedTheme = localStorage.getItem('quickNotesTheme');
+    
+    if (savedTheme === 'dark') {
+      document.documentElement.classList.add('dark-theme');
+      updateThemeToggleText('Light Mode', 'fa-sun');
+    } else {
+      document.documentElement.classList.remove('dark-theme');
+      updateThemeToggleText('Dark Mode', 'fa-moon');
+    }
+  }
+  
+  function toggleTheme() {
+    const isDarkTheme = document.documentElement.classList.toggle('dark-theme');
+    
+    if (isDarkTheme) {
+      localStorage.setItem('quickNotesTheme', 'dark');
+      updateThemeToggleText('Light Mode', 'fa-sun');
+    } else {
+      localStorage.setItem('quickNotesTheme', 'light');
+      updateThemeToggleText('Dark Mode', 'fa-moon');
+    }
+  }
+  
+  function updateThemeToggleText(text, iconClass) {
+    const toggleText = themeToggle.querySelector('.toggle-text');
+    const icon = themeToggle.querySelector('i');
+    
+    toggleText.textContent = text;
+    icon.className = '';
+    icon.classList.add('fas', iconClass);
   }
 });
