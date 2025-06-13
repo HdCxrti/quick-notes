@@ -12,16 +12,29 @@ document.addEventListener('DOMContentLoaded', function() {
   const currentDateEl = document.getElementById('currentDate');
   const noteTemplate = document.getElementById('noteTemplate');
   const themeToggle = document.getElementById('themeToggle');
-
+  
+  // Navbar elements
+  const exportBtn = document.getElementById('exportBtn');
+  const importBtn = document.getElementById('importBtn');
+  const printBtn = document.getElementById('printBtn');
+  const sortBtn = document.getElementById('sortBtn');
+  const sortDropdown = document.getElementById('sortDropdown');
+  const viewBtn = document.getElementById('viewBtn');
+  const viewDropdown = document.getElementById('viewDropdown');
+  const reminderBtn = document.getElementById('reminderBtn');
+  const archiveBtn = document.getElementById('archiveBtn');
+  const settingsBtn = document.getElementById('settingsBtn');
   // State
   let notes = [];
   let categories = ['all', 'personal', 'work', 'ideas'];
   let currentCategory = 'all';
   let editingNoteId = null;
+  let currentView = 'grid';
+  let currentSort = 'date-new';
+  let archivedNotes = [];
 
   // Initialize
   init();
-
   // Event Listeners
   addNoteBtn.addEventListener('click', handleAddNote);
   searchInput.addEventListener('input', handleSearch);
@@ -29,6 +42,28 @@ document.addEventListener('DOMContentLoaded', function() {
   addCategoryBtn.addEventListener('click', handleAddCategory);
   noteList.addEventListener('click', handleNoteActions);
   themeToggle.addEventListener('click', toggleTheme);
+  
+  // Navbar event listeners
+  exportBtn.addEventListener('click', handleExport);
+  importBtn.addEventListener('click', handleImport);
+  printBtn.addEventListener('click', handlePrint);
+  
+  sortBtn.addEventListener('click', () => toggleDropdown(sortDropdown));
+  viewBtn.addEventListener('click', () => toggleDropdown(viewDropdown));
+  
+  sortDropdown.addEventListener('click', handleSort);
+  viewDropdown.addEventListener('click', handleViewChange);
+  
+  reminderBtn.addEventListener('click', handleReminder);
+  archiveBtn.addEventListener('click', handleArchive);
+  settingsBtn.addEventListener('click', handleSettings);
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.matches('.nav-btn') && !e.target.closest('.dropdown')) {
+      hideAllDropdowns();
+    }
+  });
 
   // Functions
   function init() {
@@ -44,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const today = new Date();
     currentDateEl.textContent = today.toLocaleDateString('en-US', options);
   }
-
   function loadFromLocalStorage() {
     const savedNotes = localStorage.getItem('quickNotes');
     if (savedNotes) {
@@ -59,11 +93,32 @@ document.addEventListener('DOMContentLoaded', function() {
         categories.unshift('all');
       }
     }
+    
+    // Load view preference
+    const savedView = localStorage.getItem('quickNotesView');
+    if (savedView) {
+      currentView = savedView;
+      applyCurrentView();
+    }
+    
+    // Load sort preference
+    const savedSort = localStorage.getItem('quickNotesSort');
+    if (savedSort) {
+      currentSort = savedSort;
+    }
+    
+    // Load archived notes
+    const savedArchived = localStorage.getItem('quickNotesArchived');
+    if (savedArchived) {
+      archivedNotes = JSON.parse(savedArchived);
+    }
   }
-
   function saveToLocalStorage() {
     localStorage.setItem('quickNotes', JSON.stringify(notes));
     localStorage.setItem('quickNoteCategories', JSON.stringify(categories));
+    localStorage.setItem('quickNotesView', currentView);
+    localStorage.setItem('quickNotesSort', currentSort);
+    localStorage.setItem('quickNotesArchived', JSON.stringify(archivedNotes));
   }
 
   function handleAddNote() {
@@ -115,7 +170,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function generateId() {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
-
   function renderNotes() {
     noteList.innerHTML = '';
     
@@ -134,6 +188,9 @@ document.addEventListener('DOMContentLoaded', function() {
         note.text.toLowerCase().includes(searchQuery)
       );
     }
+    
+    // Sort notes based on current sort setting
+    filteredNotes = sortNotes(filteredNotes);
 
     if (filteredNotes.length === 0) {
       const emptyMessage = document.createElement('div');
@@ -276,7 +333,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
   }
-
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
@@ -313,5 +369,254 @@ document.addEventListener('DOMContentLoaded', function() {
     toggleText.textContent = text;
     icon.className = '';
     icon.classList.add('fas', iconClass);
+  }
+  
+  // Navbar functionality
+  function toggleDropdown(dropdown) {
+    hideAllDropdowns();
+    dropdown.classList.toggle('show');
+  }
+  
+  function hideAllDropdowns() {
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
+  }
+  
+  function handleExport() {
+    const dataStr = JSON.stringify(notes);
+    const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+    
+    const exportFileDefaultName = 'quick-notes-export.json';
+    
+    const linkElement = document.createElement('a');
+    linkElement.setAttribute('href', dataUri);
+    linkElement.setAttribute('download', exportFileDefaultName);
+    linkElement.click();
+  }
+  
+  function handleImport() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = e => {
+      const file = e.target.files[0];
+      
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const importedNotes = JSON.parse(event.target.result);
+          
+          if (Array.isArray(importedNotes)) {
+            // Add imported notes to existing notes
+            notes = [...notes, ...importedNotes];
+            saveToLocalStorage();
+            renderNotes();
+            alert('Notes imported successfully!');
+          } else {
+            alert('Invalid file format');
+          }
+        } catch (error) {
+          alert('Failed to import: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
+    };
+    
+    input.click();
+  }
+  
+  function handlePrint() {
+    const notesToPrint = notes.filter(note => {
+      if (currentCategory !== 'all') {
+        return note.category === currentCategory;
+      }
+      return true;
+    });
+    
+    const printWindow = window.open('', '_blank');
+    
+    let printContent = `
+      <html>
+        <head>
+          <title>Quick Notes - Print</title>
+          <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            h1 { text-align: center; color: #1e392a; }
+            .note { border: 1px solid #ddd; margin-bottom: 20px; padding: 15px; border-radius: 5px; }
+            .note-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+            .note-title { font-size: 18px; font-weight: bold; }
+            .note-category { font-size: 12px; background: #2d5941; color: white; padding: 3px 8px; border-radius: 10px; }
+            .note-content { color: #555; }
+            .note-date { font-size: 12px; color: #777; margin-top: 10px; text-align: right; }
+            @media print { body { font-size: 12px; } }
+          </style>
+        </head>
+        <body>
+          <h1>Quick Notes</h1>
+    `;
+    
+    notesToPrint.forEach(note => {
+      const date = new Date(note.updatedAt);
+      const formattedDate = new Intl.DateTimeFormat('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(date);
+      
+      printContent += `
+        <div class="note">
+          <div class="note-header">
+            <div class="note-title">${note.title}</div>
+            <div class="note-category">${note.category}</div>
+          </div>
+          <div class="note-content">${note.text}</div>
+          <div class="note-date">Last updated: ${formattedDate}</div>
+        </div>
+      `;
+    });
+    
+    printContent += `
+        </body>
+      </html>
+    `;
+    
+    printWindow.document.open();
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+    
+    // Wait for content to load before printing
+    printWindow.onload = function() {
+      printWindow.print();
+    };
+  }
+  
+  function handleSort(event) {
+    const sortOption = event.target.dataset.sort;
+    if (!sortOption) return;
+    
+    currentSort = sortOption;
+    saveToLocalStorage();
+    renderNotes();
+    hideAllDropdowns();
+  }
+  
+  function sortNotes(notesToSort) {
+    const sorted = [...notesToSort];
+    
+    switch (currentSort) {
+      case 'date-new':
+        return sorted.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+      case 'date-old':
+        return sorted.sort((a, b) => new Date(a.updatedAt) - new Date(b.updatedAt));
+      case 'alpha-az':
+        return sorted.sort((a, b) => a.title.localeCompare(b.title));
+      case 'alpha-za':
+        return sorted.sort((a, b) => b.title.localeCompare(a.title));
+      default:
+        return sorted;
+    }
+  }
+  
+  function handleViewChange(event) {
+    const viewOption = event.target.dataset.view;
+    if (!viewOption) return;
+    
+    currentView = viewOption;
+    applyCurrentView();
+    saveToLocalStorage();
+    hideAllDropdowns();
+  }
+  
+  function applyCurrentView() {
+    noteList.className = 'notes-grid';  // Reset class
+    
+    if (currentView === 'list') {
+      noteList.classList.add('notes-list');
+    } else if (currentView === 'compact') {
+      noteList.classList.add('notes-compact');
+    }
+    
+    renderNotes();
+  }
+  
+  function handleReminder() {
+    const selectedNotes = getSelectedNotes();
+    
+    if (selectedNotes.length === 0) {
+      alert('Please select at least one note to set a reminder for.');
+      return;
+    }
+    
+    const reminderDate = prompt('Enter reminder date (YYYY-MM-DD HH:MM):');
+    
+    if (reminderDate) {
+      const timestamp = new Date(reminderDate).getTime();
+      
+      if (isNaN(timestamp)) {
+        alert('Invalid date format. Please use YYYY-MM-DD HH:MM format.');
+        return;
+      }
+      
+      selectedNotes.forEach(note => {
+        const noteIndex = notes.findIndex(n => n.id === note.id);
+        if (noteIndex !== -1) {
+          notes[noteIndex].reminder = timestamp;
+        }
+      });
+      
+      saveToLocalStorage();
+      renderNotes();
+      alert('Reminder set successfully!');
+      
+      // Set up notification if browser supports it
+      if ("Notification" in window) {
+        Notification.requestPermission().then(permission => {
+          if (permission === "granted") {
+            const timeUntilReminder = timestamp - Date.now();
+            if (timeUntilReminder > 0) {
+              setTimeout(() => {
+                new Notification("Quick Notes Reminder", {
+                  body: `Reminder for your note: ${selectedNotes[0].title}`
+                });
+              }, timeUntilReminder);
+            }
+          }
+        });
+      }
+    }
+  }
+  
+  function getSelectedNotes() {
+    // For now, just return the latest note or an empty array
+    return notes.length > 0 ? [notes[0]] : [];
+  }
+  
+  function handleArchive() {
+    const selectedNotes = getSelectedNotes();
+    
+    if (selectedNotes.length === 0) {
+      alert('Please select at least one note to archive.');
+      return;
+    }
+    
+    if (confirm('Archive selected notes? You can find them in the settings menu later.')) {
+      selectedNotes.forEach(note => {
+        // Remove from active notes
+        notes = notes.filter(n => n.id !== note.id);
+        // Add to archived notes
+        archivedNotes.push({...note, archivedAt: new Date().toISOString()});
+      });
+      
+      saveToLocalStorage();
+      renderNotes();
+      alert('Notes archived successfully!');
+    }
+  }
+  
+  function handleSettings() {
+    alert('Settings functionality will be implemented in the next version.\n\nComing soon: Theme customization, note preferences, archived notes management, and more!');
   }
 });

@@ -16,8 +16,62 @@
           <i class="fas fa-moon"></i>
           <span class="toggle-text">Dark Mode</span>
         </button>
+      </div>    </header>
+    
+    <nav class="navbar">
+      <div class="nav-section">
+        <button class="nav-btn" id="exportBtn" title="Export notes">
+          <i class="fas fa-file-export"></i>
+          <span>Export</span>
+        </button>
+        <button class="nav-btn" id="importBtn" title="Import notes">
+          <i class="fas fa-file-import"></i>
+          <span>Import</span>
+        </button>
+        <button class="nav-btn" id="printBtn" title="Print notes">
+          <i class="fas fa-print"></i>
+          <span>Print</span>
+        </button>
       </div>
-    </header>
+      
+      <div class="nav-section">
+        <button class="nav-btn" id="sortBtn" title="Sort notes">
+          <i class="fas fa-sort"></i>
+          <span>Sort</span>
+        </button>
+        <div class="dropdown" id="sortDropdown">
+          <button class="dropdown-item" data-sort="date-new">Newest first</button>
+          <button class="dropdown-item" data-sort="date-old">Oldest first</button>
+          <button class="dropdown-item" data-sort="alpha-az">A to Z</button>
+          <button class="dropdown-item" data-sort="alpha-za">Z to A</button>
+        </div>
+        
+        <button class="nav-btn" id="viewBtn" title="Change view">
+          <i class="fas fa-th-large"></i>
+          <span>View</span>
+        </button>
+        <div class="dropdown" id="viewDropdown">
+          <button class="dropdown-item" data-view="grid">Grid view</button>
+          <button class="dropdown-item" data-view="list">List view</button>
+          <button class="dropdown-item" data-view="compact">Compact view</button>
+        </div>
+      </div>
+      
+      <div class="nav-section">
+        <button class="nav-btn" id="reminderBtn" title="Set reminder">
+          <i class="fas fa-bell"></i>
+          <span>Reminder</span>
+        </button>
+        <button class="nav-btn" id="archiveBtn" title="Archive notes">
+          <i class="fas fa-archive"></i>
+          <span>Archive</span>
+        </button>
+        <button class="nav-btn" id="settingsBtn" title="Settings">
+          <i class="fas fa-cog"></i>
+          <span>Settings</span>
+        </button>
+      </div>
+    </nav>
     
     <div class="main-content">
       <div class="sidebar">

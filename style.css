@@ -28,7 +28,7 @@
   --bg-color: #222222;
   --card-color: #2a2a2a;
   --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-  --sidebar-bg: rgba(32, 32, 32, 0.95);
+  --sidebar-bg: rgba(22, 22, 22, 0.95);
   --input-border: #444444;
   --notes-container-bg: #1e1e1e;
   --category-hover: rgba(45, 89, 65, 0.3);
@@ -129,6 +129,11 @@ header p.date {
   transition: background-color 0.3s ease;
 }
 
+:root.dark-theme .sidebar {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid #333;
+}
+
 .search-box {
   position: relative;
   margin-bottom: 1.5rem;
@@ -143,6 +148,11 @@ header p.date {
   background-color: var(--card-color);
   color: var(--text-color);
   transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+:root.dark-theme .search-box input {
+  background-color: #1a1a1a;
+  border-color: #333333;
 }
 
 .search-icon {
@@ -160,7 +170,8 @@ header p.date {
 }
 
 :root.dark-theme .categories h3 {
-  color: var(--primary-light);
+  color: #4e9e6a;
+  font-weight: 600;
 }
 
 #categoryList {
@@ -174,6 +185,11 @@ header p.date {
   border-radius: var(--border-radius);
   cursor: pointer;
   transition: var(--transition);
+}
+
+:root.dark-theme #categoryList li {
+  background-color: #202020;
+  border: 1px solid #303030;
 }
 
 #categoryList li:hover {
@@ -195,6 +211,12 @@ header p.date {
   cursor: pointer;
   transition: var(--transition);
   font-size: 0.9rem;
+}
+
+:root.dark-theme #addCategoryBtn {
+  background-color: #202020;
+  border: 1px dashed #4e9e6a;
+  color: #4e9e6a;
 }
 
 #addCategoryBtn:hover {
@@ -295,6 +317,62 @@ header p.date {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.25rem;
+}
+
+/* Note view styles */
+.notes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.notes-list .note-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-areas: 
+    "header actions"
+    "content content"
+    "footer footer";
+  padding: 1rem 1.25rem;
+}
+
+.notes-list .note-header {
+  grid-area: header;
+}
+
+.notes-list .note-actions {
+  grid-area: actions;
+  align-self: start;
+}
+
+.notes-list .note-content {
+  grid-area: content;
+}
+
+.notes-list .note-footer {
+  grid-area: footer;
+}
+
+.notes-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.notes-compact .note-card {
+  padding: 0.75rem;
+}
+
+.notes-compact .note-title {
+  font-size: 1rem;
+}
+
+.notes-compact .note-content {
+  max-height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 0.5rem;
 }
 
 /* Note card styles */
@@ -407,6 +485,83 @@ header p.date {
   background: #777;
 }
 
+/* Navbar styles */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--card-color);
+  margin: 0.75rem 0;
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  transition: background-color 0.3s ease;
+  position: relative;
+  flex-wrap: wrap;
+}
+
+.nav-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.nav-btn:hover {
+  background-color: var(--category-hover);
+}
+
+.nav-btn i {
+  font-size: 1rem;
+}
+
+/* Dropdown styles */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: var(--card-color);
+  min-width: 160px;
+  box-shadow: var(--shadow);
+  border-radius: var(--border-radius);
+  z-index: 10;
+  display: none;
+  transition: var(--transition);
+}
+
+.dropdown.show {
+  display: block;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: transparent;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.dropdown-item:hover {
+  background-color: var(--category-hover);
+}
+
 /* Responsive design */
 @media (max-width: 900px) {
   .main-content {
@@ -433,5 +588,25 @@ header p.date {
 
   #addNote {
     width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    justify-content: center;
+    gap: 1rem;
+    padding: 0.75rem;
+  }
+  
+  .nav-section {
+    margin-bottom: 0.5rem;
+  }
+  
+  .nav-btn span {
+    display: none;
+  }
+  
+  .nav-btn {
+    padding: 0.5rem;
   }
 }
