@@ -1158,3 +1158,110 @@ kbd {
   max-width: 100%;
   height: auto;
 }
+
+/* Statistics Dashboard */
+.stats-dashboard {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.stats-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.stats-card {
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 180px;
+  transition: var(--transition);
+}
+
+.stats-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.stats-icon {
+  font-size: 2rem;
+  color: var(--primary-color);
+  margin-right: 15px;
+}
+
+.stats-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.stats-number {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--primary-color);
+}
+
+.stats-label {
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.stats-row {
+  display: flex;
+  gap: 20px;
+}
+
+.stats-section {
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  flex: 1;
+}
+
+.stats-section h4 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+}
+
+.stats-chart {
+  height: 250px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Tag cloud */
+.tag-cloud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 15px 0;
+}
+
+.tag-cloud-tag {
+  padding: 5px 10px;
+  border-radius: 15px;
+  background-color: var(--category-hover);
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.tag-cloud-tag:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.tag-cloud-tag[data-size="1"] { font-size: 0.8rem; opacity: 0.7; }
+.tag-cloud-tag[data-size="2"] { font-size: 1rem; opacity: 0.8; }
+.tag-cloud-tag[data-size="3"] { font-size: 1.1rem; opacity: 0.9; }
+.tag-cloud-tag[data-size="4"] { font-size: 1.3rem; opacity: 1; }
+.tag-cloud-tag[data-size="5"] { font-size: 1.5rem; opacity: 1; font-weight: bold; }

@@ -5,15 +5,17 @@
   <title>Quick Notes</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/marked/marked.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/styles/atom-one-dark.min.css">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/styles/atom-one-dark.min.css">  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="performance.css">
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/lib/highlight.min.js"></script>
+  <!-- Performance optimization script - load this before main script -->
+  <script src="performance-fix.js"></script>
 </head>
-<body>
-  <div class="app-container">    <header>
+<body>  <div class="app-container">    <header>
       <h1><i class="fas fa-sticky-note"></i> Quick Notes</h1>
       <p class="date" id="currentDate"></p>
+      <button id="debugButton" style="display:inline-block;">Debug Notes</button>
       <div class="theme-toggle">
         <button id="themeToggle" aria-label="Toggle dark/light mode">
           <i class="fas fa-moon"></i>
@@ -116,6 +118,10 @@
         <button class="nav-btn" id="settingsBtn" title="Settings">
           <i class="fas fa-cog"></i>
           <span>Settings</span>
+        </button>
+        <button class="nav-btn" id="statsBtn" title="Statistics">
+          <i class="fas fa-chart-bar"></i>
+          <span>Stats</span>
         </button>
       </div>
     </nav>
@@ -327,6 +333,69 @@
           <div id="versionPreview"></div>
           <div class="version-actions">
             <button id="restoreVersion">Restore This Version</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Statistics Dashboard Modal -->
+  <div id="statsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Notes Statistics</h3>
+        <button id="closeStatsModal"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="stats-dashboard">
+          <div class="stats-section">
+            <h4>Notes Summary</h4>
+            <div class="stats-cards">
+              <div class="stats-card">
+                <div class="stats-icon"><i class="fas fa-sticky-note"></i></div>
+                <div class="stats-data">
+                  <span id="totalNotesCount" class="stats-number">0</span>
+                  <span class="stats-label">Total Notes</span>
+                </div>
+              </div>
+              <div class="stats-card">
+                <div class="stats-icon"><i class="fas fa-pencil-alt"></i></div>
+                <div class="stats-data">
+                  <span id="totalWordsCount" class="stats-number">0</span>
+                  <span class="stats-label">Total Words</span>
+                </div>
+              </div>
+              <div class="stats-card">
+                <div class="stats-icon"><i class="fas fa-archive"></i></div>
+                <div class="stats-data">
+                  <span id="archivedNotesCount" class="stats-number">0</span>
+                  <span class="stats-label">Archived</span>
+                </div>
+              </div>
+              <div class="stats-card">
+                <div class="stats-icon"><i class="fas fa-thumbtack"></i></div>
+                <div class="stats-data">
+                  <span id="pinnedNotesCount" class="stats-number">0</span>
+                  <span class="stats-label">Pinned</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stats-row">
+            <div class="stats-section">
+              <h4>Notes by Category</h4>
+              <div id="categoryChart" class="stats-chart"></div>
+            </div>
+            <div class="stats-section">
+              <h4>Notes Activity</h4>
+              <div id="activityChart" class="stats-chart"></div>
+            </div>
+          </div>
+          
+          <div class="stats-section">
+            <h4>Most Used Tags</h4>
+            <div id="tagCloud" class="tag-cloud"></div>
           </div>
         </div>
       </div>

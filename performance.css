@@ -1,0 +1,22 @@
+/* Performance optimization styles for Quick Notes app - simplified for reliability */
+
+/* Optimize button feedback */
+button:active, .nav-btn:active, .dropdown-item:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease-out;
+}
+
+/* Visual feedback for clicks */
+.clicking {
+  transform: scale(0.95);
+}
+
+/* Optimize note rendering */
+.note-list {
+  contain: content;
+}
+
+/* Reduce paint operations for scrolling */
+.notes-container, .sidebar {
+  will-change: transform;
+}
