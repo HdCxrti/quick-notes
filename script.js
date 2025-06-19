@@ -1,4 +1,52 @@
 document.addEventListener('DOMContentLoaded', function() {
+  // Make key variables and functions global for other scripts to access
+  window.notes = [];
+  window.categories = ['all', 'personal', 'work', 'ideas'];
+  window.currentCategory = 'all';
+  window.editingNoteId = null;
+  window.currentView = 'grid';
+  window.currentSort = 'date-new';
+  window.archivedNotes = [];
+  window.markdownEnabled = false;
+  window.tags = [];
+  window.selectedTags = [];
+  window.templates = [
+    {
+      id: 'meeting',
+      name: 'Meeting Notes',
+      title: 'Meeting: ',
+      content: '## Attendees\n- \n\n## Agenda\n1. \n2. \n\n## Action Items\n- [ ] \n- [ ] \n\n## Notes\n'
+    },
+    {
+      id: 'todo',
+      name: 'Todo List',
+      title: 'Todo List: ',
+      content: '## Tasks\n- [ ] \n- [ ] \n- [ ] \n\n## Notes\n'
+    },
+    {
+      id: 'journal',
+      name: 'Journal Entry',
+      title: 'Journal: ',
+      content: '## Mood\n\n## Today I accomplished\n\n## I\'m grateful for\n\n## Tomorrow\'s goals\n'
+    },
+    {
+      id: 'project',
+      name: 'Project Plan',
+      title: 'Project: ',
+      content: '## Overview\n\n## Goals\n- \n- \n\n## Timeline\n- Start: \n- End: \n\n## Resources\n- \n\n## Notes\n'
+    }
+  ];
+  window.selectedTemplateId = null;
+  window.autoSaveTimer = null;
+  window.draftNote = null;
+  window.noteVersions = {}; // Store version history for notes
+  window.pendingAttachments = []; // For new attachments
+  
+  // Make key functions global
+  window.renderNotes = renderNotes;
+  window.saveToLocalStorage = saveToLocalStorage;
+  window.updateMarkdownToggle = updateMarkdownToggle;
+  
   // Debounce function to improve performance
   function debounce(func, wait) {
     let timeout;
@@ -386,15 +434,36 @@ document.addEventListener('DOMContentLoaded', function() {
       const noteIndex = notes.findIndex(note => note.id === editingNoteId);
       
       if (noteIndex !== -1) {
-        // Save the current version in history before updating
+        // Save current version before updating
         saveNoteVersion(notes[noteIndex]);
         
-        notes[noteIndex].title = title;
-        notes[noteIndex].text = text;
-        notes[noteIndex].category = category;
-        notes[noteIndex].updatedAt = Date.now();
-        notes[noteIndex].markdown = markdownToggle.checked;
-        notes[noteIndex].tags = [...selectedTags];
+        notes[noteIndex] = {
+          ...notes[noteIndex],
+          title,
+          text,
+          category,
+          updatedAt: Date.now(),
+          markdown: markdownToggle.checked,
+          tags: [...selectedTags]
+        };
+        
+        // Add any pending attachments if they exist
+        if (window.pendingAttachments && window.pendingAttachments.length > 0) {
+          if (!notes[noteIndex].attachments) {
+            notes[noteIndex].attachments = [];
+          }
+          notes[noteIndex].attachments = [...notes[noteIndex].attachments, ...window.pendingAttachments];
+          window.pendingAttachments = []; // Clear pending attachments
+        }
+        
+        // Save to IndexedDB if available
+        if (window.QuickNotesDB) {
+          try {
+            QuickNotesDB.addOrUpdateNote(notes[noteIndex]);
+          } catch (e) {
+            console.error('Error saving to IndexedDB:', e);
+          }
+        }
         
         editingNoteId = null;
       }
@@ -411,7 +480,23 @@ document.addEventListener('DOMContentLoaded', function() {
         tags: [...selectedTags],
         pinned: false
       };
+      
+      // Add any pending attachments
+      if (window.pendingAttachments && window.pendingAttachments.length > 0) {
+        newNote.attachments = [...window.pendingAttachments];
+        window.pendingAttachments = []; // Clear pending attachments
+      }
+      
       notes.unshift(newNote);
+      
+      // Save to IndexedDB if available
+      if (window.QuickNotesDB) {
+        try {
+          QuickNotesDB.addOrUpdateNote(newNote);
+        } catch (e) {
+          console.error('Error saving to IndexedDB:', e);
+        }
+      }
     }
     
     // Clear form
@@ -455,20 +540,19 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     if (searchTerm) {
       filteredNotes = filteredNotes.filter(note => {
-        // Search in title and text
-        const inTitle = note.title.toLowerCase().includes(searchTerm);
-        const inText = note.text.toLowerCase().includes(searchTerm);
+        const titleMatch = note.title.toLowerCase().includes(searchTerm);
+        const textMatch = note.text.toLowerCase().includes(searchTerm);
+        const categoryMatch = note.category.toLowerCase().includes(searchTerm);
+        const tagsMatch = note.tags && note.tags.some(tag => tag.toLowerCase().includes(searchTerm));
         
-        // Search in tags
-        const inTags = note.tags ? note.tags.some(tag => tag.toLowerCase().includes(searchTerm)) : false;
-        
-        return inTitle || inText || inTags;
+        return titleMatch || textMatch || categoryMatch || tagsMatch;
       });
     }
     
     // Sort notes
     filteredNotes = sortNotes(filteredNotes);
-      // Move pinned notes to the top
+    
+    // Move pinned notes to the top
     filteredNotes.sort((a, b) => {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
@@ -488,6 +572,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render each note    
     filteredNotes.forEach(note => {
       if (!noteTemplate) {
+        console.error('Note template not found');
         return;
       }
       
@@ -495,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         noteElement = document.importNode(noteTemplate.content, true).querySelector('.note-card');
       } catch (err) {
-        console.error('Error creating note element:', err);
+        console.error('Error cloning note template:', err);
         return;
       }
       
@@ -509,7 +594,10 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Add pinned class if note is pinned
       if (note.pinned) {
-        noteElement.classList.add('pinned');
+        noteElement.classList.add('note-pinned');
+        const pinIcon = document.createElement('i');
+        pinIcon.className = 'fas fa-thumbtack pin-icon';
+        noteElement.appendChild(pinIcon);
       }
       
       // Set note content
@@ -518,14 +606,17 @@ document.addEventListener('DOMContentLoaded', function() {
       const noteContent = noteElement.querySelector('.note-content');
       
       if (note.markdown) {
-        // Render markdown content
-        noteContent.innerHTML = marked.parse(note.text);
-        noteContent.classList.add('markdown-preview');
-        
-        // Apply syntax highlighting
-        noteContent.querySelectorAll('pre code').forEach((block) => {
-          hljs.highlightElement(block);
-        });
+        try {
+          noteContent.innerHTML = marked.parse(note.text);
+          
+          // Apply syntax highlighting
+          noteContent.querySelectorAll('pre code').forEach((block) => {
+            hljs.highlightBlock(block);
+          });
+        } catch (err) {
+          console.error('Error parsing markdown:', err);
+          noteContent.textContent = note.text;
+        }
       } else {
         // Plain text content
         noteContent.textContent = note.text;
@@ -536,7 +627,8 @@ document.addEventListener('DOMContentLoaded', function() {
       // Format date
       const formattedDate = formatDate(note.createdAt);
       noteElement.querySelector('.note-date').textContent = formattedDate;
-        // Render tags if they exist
+      
+      // Render tags if they exist
       const tagsContainer = noteElement.querySelector('.note-tags');
       if (note.tags && note.tags.length > 0) {
         // Create tag elements in a fragment for better performance
@@ -548,6 +640,24 @@ document.addEventListener('DOMContentLoaded', function() {
           tagFragment.appendChild(tagElement);
         });
         tagsContainer.appendChild(tagFragment);
+      }
+      
+      // Render attachments if they exist
+      if (note.attachments && note.attachments.length > 0) {
+        const attachmentsContainer = document.createElement('div');
+        attachmentsContainer.className = 'note-attachments';
+        
+        note.attachments.forEach(attachment => {
+          if (window.attachmentsManager) {
+            const attachmentElement = window.attachmentsManager.createViewAttachmentElement(
+              attachment, 
+              (att) => window.attachmentsManager.openAttachment(att)
+            );
+            attachmentsContainer.appendChild(attachmentElement);
+          }
+        });
+        
+        noteElement.appendChild(attachmentsContainer);
       }
       
       // Add to the fragment instead of directly to the DOM

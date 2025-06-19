@@ -3,14 +3,25 @@
 <head>  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Quick Notes</title>
+  <!-- PWA Support -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2d5941">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <!-- Stylesheets -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/marked/marked.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/styles/atom-one-dark.min.css">  <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="performance.css">
+  <link rel="stylesheet" href="new-features.css">
+  <!-- External Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.5.1/lib/highlight.min.js"></script>
-  <!-- Performance optimization script - load this before main script -->
+  <!-- App Scripts - Load these before main script -->
   <script src="performance-fix.js"></script>
+  <script src="db.js"></script>
+  <script src="pomodoro.js"></script>
+  <script src="attachments.js"></script>
+  <script src="richtext.js"></script>
 </head>
 <body>  <div class="app-container">    <header>
       <h1><i class="fas fa-sticky-note"></i> Quick Notes</h1>
@@ -83,6 +94,21 @@
           <button class="dropdown-item color-item" data-color="red"><span class="color-swatch red"></span>Red</button>
           <button class="dropdown-item color-item" data-color="purple"><span class="color-swatch purple"></span>Purple</button>
         </div>
+        
+        <button class="nav-btn" id="pomodoroBtn" title="Pomodoro Timer">
+          <i class="fas fa-clock"></i>
+          <span>Pomodoro</span>
+        </button>
+        
+        <button class="nav-btn" id="attachmentsBtn" title="Add Attachments">
+          <i class="fas fa-paperclip"></i>
+          <span>Attach</span>
+        </button>
+        
+        <button class="nav-btn" id="editorBtn" title="Rich Text Editor">
+          <i class="fas fa-pen-fancy"></i>
+          <span>Editor</span>
+        </button>
         
         <button class="nav-btn" id="focusModeBtn" title="Focus mode">
           <i class="fas fa-expand"></i>
@@ -402,6 +428,116 @@
     </div>
   </div>
   
+  <!-- Pomodoro Timer Modal -->
+  <div id="pomodoroModal" class="modal">
+    <div class="modal-content pomodoro-modal">
+      <div class="modal-header">
+        <h3>Pomodoro Timer</h3>
+        <button id="closePomodoroModal" class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="pomodoro-display">
+          <div id="pomodoroTimer" class="pomodoro-timer">25:00</div>
+          <div id="pomodoroStatus" class="pomodoro-status">Ready to focus</div>
+          <div id="pomodoroCounter" class="pomodoro-counter">Session 0/4</div>
+        </div>
+        <div class="pomodoro-controls">
+          <button id="pomodoroStartBtn" class="pomodoro-btn start">
+            <i class="fas fa-play"></i> Start
+          </button>
+          <button id="pomodoroPauseBtn" class="pomodoro-btn pause" disabled>
+            <i class="fas fa-pause"></i> Pause
+          </button>
+          <button id="pomodoroResetBtn" class="pomodoro-btn reset">
+            <i class="fas fa-redo"></i> Reset
+          </button>
+          <button id="pomodoroSkipBtn" class="pomodoro-btn skip">
+            <i class="fas fa-step-forward"></i> Skip
+          </button>
+        </div>
+        <div class="pomodoro-settings">
+          <h4>Settings</h4>
+          <div class="settings-group">
+            <label for="workTime">Work Time (minutes)</label>
+            <input type="number" id="workTime" min="1" max="60" value="25">
+          </div>
+          <div class="settings-group">
+            <label for="shortBreakTime">Short Break (minutes)</label>
+            <input type="number" id="shortBreakTime" min="1" max="30" value="5">
+          </div>
+          <div class="settings-group">
+            <label for="longBreakTime">Long Break (minutes)</label>
+            <input type="number" id="longBreakTime" min="5" max="60" value="15">
+          </div>
+          <div class="settings-group">
+            <label for="sessionsBeforeLongBreak">Sessions before long break</label>
+            <input type="number" id="sessionsBeforeLongBreak" min="1" max="10" value="4">
+          </div>
+          <button id="saveTimerSettings" class="btn primary-btn">Save Settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Attachments Modal -->
+  <div id="attachmentsModal" class="modal">
+    <div class="modal-content attachments-modal">
+      <div class="modal-header">
+        <h3>Manage Attachments</h3>
+        <button id="closeAttachmentsModal" class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="attachment-dropzone" id="attachmentDropzone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Drag & drop files here or click to browse</p>
+          <input type="file" id="fileInput" multiple hidden>
+        </div>
+        <div class="attachment-info">
+          <span id="attachmentCount">0 files selected</span>
+          <span id="attachmentSize">0 KB</span>
+        </div>
+        <div id="attachmentsList" class="attachments-list"></div>
+        <div class="attachments-controls">
+          <button id="removeAllAttachments" class="btn secondary-btn">Remove All</button>
+          <button id="saveAttachments" class="btn primary-btn">Add to Note</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rich Text Editor Modal -->
+  <div id="richTextModal" class="modal">
+    <div class="modal-content richtext-modal">
+      <div class="modal-header">
+        <h3>Rich Text Editor</h3>
+        <button id="closeRichTextModal" class="close-btn">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="richTextEditor" class="rich-text-container"></div>
+        <div class="richtext-controls">
+          <button id="cancelRichText" class="btn secondary-btn">Cancel</button>
+          <button id="applyRichText" class="btn primary-btn">Apply to Note</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add the service worker registration script -->
+  <script>
+    // Register Service Worker for PWA support
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope:', registration.scope);
+          })
+          .catch(error => {
+            console.error('Service Worker registration failed:', error);
+          });
+      });
+    }
+  </script>
+  <script src="new-features.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

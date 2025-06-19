@@ -1,0 +1,397 @@
+/* Styles for new features */
+
+/* Rich Text Editor */
+.rich-text-container {
+  width: 100%;
+  min-height: 300px;
+  margin-bottom: 20px;
+}
+
+.rich-text-editor {
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius);
+  background-color: var(--card-color);
+  overflow: hidden;
+}
+
+.rich-text-toolbar {
+  background-color: var(--sidebar-bg);
+  padding: 8px;
+  border-bottom: 1px solid var(--input-border);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.toolbar-button {
+  padding: 5px 10px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-color);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toolbar-button:hover {
+  background-color: var(--category-hover);
+}
+
+.toolbar-separator {
+  width: 1px;
+  height: 24px;
+  background-color: var(--input-border);
+  margin: 0 5px;
+}
+
+.rich-text-content {
+  padding: 15px;
+  min-height: 250px;
+  outline: none;
+  font-family: inherit;
+}
+
+.rich-text-content[placeholder]:empty:before {
+  content: attr(placeholder);
+  color: var(--text-light);
+}
+
+.richtext-modal .modal-content {
+  max-width: 800px;
+  width: 90%;
+}
+
+.richtext-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+/* Pomodoro Timer */
+.pomodoro-modal .modal-content {
+  max-width: 500px;
+}
+
+.pomodoro-display {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.pomodoro-timer {
+  font-size: 4rem;
+  font-weight: bold;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.pomodoro-status {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-bottom: 5px;
+}
+
+.pomodoro-counter {
+  font-size: 0.9rem;
+  color: var(--text-light);
+}
+
+.pomodoro-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pomodoro-btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: var(--border-radius);
+  color: white;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pomodoro-btn.start {
+  background-color: var(--primary-color);
+}
+
+.pomodoro-btn.pause {
+  background-color: var(--accent-color);
+}
+
+.pomodoro-btn.reset, .pomodoro-btn.skip {
+  background-color: #666;
+}
+
+.pomodoro-btn:hover {
+  opacity: 0.9;
+  transform: scale(1.05);
+}
+
+.pomodoro-btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pomodoro-settings {
+  margin-top: 20px;
+  border-top: 1px solid var(--input-border);
+  padding-top: 15px;
+}
+
+.settings-group {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settings-group input {
+  width: 60px;
+  padding: 5px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+}
+
+/* Attachments */
+.attachments-modal .modal-content {
+  max-width: 600px;
+}
+
+.attachment-dropzone {
+  border: 2px dashed var(--input-border);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  text-align: center;
+  margin-bottom: 15px;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.attachment-dropzone:hover {
+  border-color: var(--primary-light);
+}
+
+.attachment-dropzone i {
+  font-size: 2.5rem;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+.attachment-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.attachments-list {
+  max-height: 300px;
+  overflow-y: auto;
+  margin-bottom: 15px;
+  border: 1px solid var(--input-border);
+  border-radius: var(--border-radius);
+  padding: 10px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  border-bottom: 1px solid var(--input-border);
+}
+
+.attachment-item:last-child {
+  border-bottom: none;
+}
+
+.attachment-preview {
+  width: 60px;
+  height: 60px;
+  margin-right: 10px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.attachment-preview img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.file-preview {
+  background-color: var(--category-hover);
+  border-radius: 4px;
+}
+
+.file-preview i {
+  font-size: 24px;
+  color: var(--text-color);
+}
+
+.attachment-info {
+  flex: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.attachment-name {
+  font-size: 0.9rem;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.remove-attachment {
+  background: none;
+  border: none;
+  color: var(--accent-color);
+  cursor: pointer;
+  font-size: 1.2rem;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+}
+
+.attachments-controls {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Note attachment display */
+.note-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--input-border);
+}
+
+.view-attachment-item {
+  position: relative;
+  width: 70px;
+  height: 70px;
+  border: 1px solid var(--input-border);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.view-attachment-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.view-attachment-item .file-preview {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.open-attachment {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* PWA install prompt */
+.pwa-install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--card-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow);
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 1000;
+  max-width: 90%;
+  width: 400px;
+}
+
+.pwa-install-prompt p {
+  flex: 1;
+  margin: 0;
+}
+
+.pwa-install-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.pwa-install-buttons button {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.pwa-install-buttons .primary {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.pwa-install-buttons .secondary {
+  background-color: var(--text-light);
+  color: white;
+}
+
+/* Responsive styles for new features */
+@media (max-width: 768px) {
+  .richtext-modal .modal-content,
+  .pomodoro-modal .modal-content,
+  .attachments-modal .modal-content {
+    width: 95%;
+  }
+  
+  .pomodoro-timer {
+    font-size: 3rem;
+  }
+  
+  .pomodoro-controls {
+    flex-wrap: wrap;
+  }
+  
+  .attachment-item {
+    flex-direction: column;
+  }
+  
+  .attachment-preview {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+  
+  .toolbar-button {
+    padding: 4px 8px;
+  }
+}
